@@ -1,18 +1,20 @@
-package com.thinking.machines.conroller.dl.dto;
+package com.thinking.machines.controller.dl.dto;
 import com.thinking.machines.controller.dl.interfaces.dto.*;
 
 public class ProductDTO implements ProductDTOInterface
 {
 private int productId;
 private String name;
-private String category;
+private int categoryCode;
 private int price;
-public void setProductID(int prodctId)
+private int numberOfUnits;
+
+public void setProductId(int productId)
 {
 this.productId=productId;
 }
 
-public int getProductID()
+public int getProductId()
 {
 return this.productId;
 }
@@ -27,14 +29,14 @@ public String getName()
 return this.name;
 }
 
-public void setCategory(String category)
+public void setCategoryCode(int categoryCode)
 {
-this.category=category;
+this.categoryCode=categoryCode;
 }
 
-public String getCategory()
+public int getCategoryCode()
 {
-return this.category;
+return this.categoryCode;
 }
 
 public void setPrice(int price)
@@ -45,6 +47,16 @@ this.price=price;
 public int getPrice()
 {
 return this.price;
+}
+
+public void setNumberOfUnits(int numberOfUnits)
+{
+this.numberOfUnits=numberOfUnits;
+}
+
+public int getNumberOfUnits()
+{
+return this.numberOfUnits;
 }
 
 }
