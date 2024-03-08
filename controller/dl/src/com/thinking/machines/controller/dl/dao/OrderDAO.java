@@ -65,6 +65,8 @@ randomAccessFile.writeBytes("\n");
 randomAccessFile.writeBytes(lastGeneratedCodeString);
 randomAccessFile.writeBytes("\n");
 randomAccessFile.close();
+orderDTO.setDeliveryStatus(false);
+orderDTO.setOrderId(orderId);
 }catch(IOException ioException)
 {
 throw new DAOException(ioException.getMessage());
@@ -79,7 +81,7 @@ if(orderId<=0)throw new DAOException("Invalid order id");
 
 int productId=orderDTO.getProductId();
 if(productId<=0)throw new DAOException("Invalid product id");
-if(new ProductDAO().productIdExists(productId))throw new DAOException("Invalid product id");
+if(!(new ProductDAO().productIdExists(productId)))throw new DAOException("Invalid product id");
 
 boolean deliveryStatus=orderDTO.getDeliveryStatus();
 try{
@@ -118,7 +120,9 @@ tmpRandomAccessFile=new RandomAccessFile(tmpFile,"rw");
 int fProductId;
 boolean fDeliveryStatus;
 tmpRandomAccessFile.writeBytes(randomAccessFile.readLine());
+tmpRandomAccessFile.writeBytes("\n");
 tmpRandomAccessFile.writeBytes(randomAccessFile.readLine());
+tmpRandomAccessFile.writeBytes("\n");
 while(randomAccessFile.getFilePointer()<randomAccessFile.length())
 {
 fOrderId=Integer.parseInt(randomAccessFile.readLine());
@@ -127,16 +131,22 @@ fDeliveryStatus=Boolean.parseBoolean(randomAccessFile.readLine());
 if(fOrderId==orderId)
 {
 tmpRandomAccessFile.writeBytes(String.valueOf(orderId));
+tmpRandomAccessFile.writeBytes("\n");
 tmpRandomAccessFile.writeBytes(String.valueOf(productId));
+tmpRandomAccessFile.writeBytes("\n");
 if(deliveryStatus)tmpRandomAccessFile.writeBytes("True");
 else tmpRandomAccessFile.writeBytes("False");
+tmpRandomAccessFile.writeBytes("\n");
 }
 else
 {
 tmpRandomAccessFile.writeBytes(String.valueOf(fOrderId));
+tmpRandomAccessFile.writeBytes("\n");
 tmpRandomAccessFile.writeBytes(String.valueOf(fProductId));
-if(deliveryStatus)tmpRandomAccessFile.writeBytes("True");
+tmpRandomAccessFile.writeBytes("\n");
+if(fDeliveryStatus)tmpRandomAccessFile.writeBytes("True");
 else tmpRandomAccessFile.writeBytes("False");
+tmpRandomAccessFile.writeBytes("\n");
 }
 }
 tmpRandomAccessFile.seek(0);
@@ -158,22 +168,208 @@ throw new DAOException(ioException.getMessage());
 
 public void delete(int orderId) throws DAOException
 {
-throw new DAOException("Not yet implemented");
-}
-
-public Set<OrderDTOInterface> getAll() throws DAOException
+if(orderId<=0)throw new DAOException("Invalid order id");
+try{
+File file=new File(FILE_NAME);
+RandomAccessFile randomAccessFile;
+randomAccessFile=new RandomAccessFile(file,"rw");
+if(randomAccessFile.length()==0)
 {
-throw new DAOException("Not yet implemented");
+randomAccessFile.close();
+throw new DAOException("No entries yet");
+}
+boolean orderIdFound=false;
+int fOrderId;
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+while(randomAccessFile.getFilePointer()<randomAccessFile.length())
+{
+fOrderId=Integer.parseInt(randomAccessFile.readLine());
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+if(fOrderId==orderId)
+{
+orderIdFound=true;
+break;
+}
+}
+if(orderIdFound==false)
+{
+randomAccessFile.close();
+throw new DAOException("Order id does not exist.");
+}
+randomAccessFile.seek(0);
+File tmpFile=new File("tmp.tmp");
+RandomAccessFile tmpRandomAccessFile;
+tmpRandomAccessFile=new RandomAccessFile(tmpFile,"rw");
+int fProductId;
+boolean fDeliveryStatus;
+int recordCount;
+String recordCountString=randomAccessFile.readLine();
+recordCount=Integer.parseInt(recordCountString.trim());
+tmpRandomAccessFile.writeBytes(recordCountString);
+tmpRandomAccessFile.writeBytes("\n");
+tmpRandomAccessFile.writeBytes(randomAccessFile.readLine());
+tmpRandomAccessFile.writeBytes("\n");
+while(randomAccessFile.getFilePointer()<randomAccessFile.length())
+{
+fOrderId=Integer.parseInt(randomAccessFile.readLine());
+fProductId=Integer.parseInt(randomAccessFile.readLine());
+fDeliveryStatus=Boolean.parseBoolean(randomAccessFile.readLine());
+if(fOrderId==orderId)
+{
+continue;
+}
+else
+{
+tmpRandomAccessFile.writeBytes(String.valueOf(fOrderId));
+tmpRandomAccessFile.writeBytes("\n");
+tmpRandomAccessFile.writeBytes(String.valueOf(fProductId));
+tmpRandomAccessFile.writeBytes("\n");
+if(fDeliveryStatus)tmpRandomAccessFile.writeBytes("True");
+else tmpRandomAccessFile.writeBytes("False");
+tmpRandomAccessFile.writeBytes("\n");
+}
+}
+tmpRandomAccessFile.seek(0);
+randomAccessFile.seek(0);
+while(tmpRandomAccessFile.getFilePointer()<tmpRandomAccessFile.length())
+{
+randomAccessFile.writeBytes(tmpRandomAccessFile.readLine());
+randomAccessFile.writeBytes("\n");
+}
+randomAccessFile.seek(0);
+recordCount--;
+recordCountString=String.valueOf(recordCount);
+while(recordCountString.length()<10)recordCountString+=' ';
+randomAccessFile.writeBytes(recordCountString);
+randomAccessFile.writeBytes("\n");
+randomAccessFile.setLength(tmpRandomAccessFile.length());
+tmpRandomAccessFile.setLength(0);
+randomAccessFile.close();
+tmpRandomAccessFile.close();
+}catch(IOException ioException)
+{
+throw new DAOException(ioException.getMessage());
+}
 }
 
 public Set<OrderDTOInterface> getAllUndelivered() throws DAOException
 {
-throw new DAOException("Not yet implemented");
+Set<OrderDTOInterface> undeliveredOrders=new HashSet<>();
+try{
+File file=new File(FILE_NAME);
+RandomAccessFile randomAccessFile;
+randomAccessFile=new RandomAccessFile(file,"rw");
+OrderDTOInterface orderDTO;
+if(randomAccessFile.length()==0)
+{
+randomAccessFile.close();
+throw new DAOException("No entries yet.");
 }
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+int fOrderId;
+int fProductId;
+boolean fDeliveryStatus;
+while(randomAccessFile.getFilePointer()<randomAccessFile.length())
+{
+fOrderId=Integer.parseInt(randomAccessFile.readLine());
+fProductId=Integer.parseInt(randomAccessFile.readLine());
+fDeliveryStatus=Boolean.parseBoolean(randomAccessFile.readLine());
+if(fDeliveryStatus==false)
+{
+orderDTO=new OrderDTO();
+orderDTO.setOrderId(fOrderId);
+orderDTO.setProductId(fProductId);
+orderDTO.setDeliveryStatus(fDeliveryStatus);
+undeliveredOrders.add(orderDTO);
+}
+}
+randomAccessFile.close();
+return undeliveredOrders;
+}catch(IOException ioException)
+{
+throw new DAOException(ioException.getMessage());
+}
+}
+
+public Set<OrderDTOInterface> getAll() throws DAOException
+{
+Set<OrderDTOInterface> orders=new HashSet<>();
+try{
+File file=new File(FILE_NAME);
+RandomAccessFile randomAccessFile;
+randomAccessFile=new RandomAccessFile(file,"rw");
+OrderDTOInterface orderDTO;
+if(randomAccessFile.length()==0)
+{
+randomAccessFile.close();
+throw new DAOException("No entries yet.");
+}
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+int fOrderId;
+int fProductId;
+boolean fDeliveryStatus;
+while(randomAccessFile.getFilePointer()<randomAccessFile.length())
+{
+fOrderId=Integer.parseInt(randomAccessFile.readLine());
+fProductId=Integer.parseInt(randomAccessFile.readLine());
+fDeliveryStatus=Boolean.parseBoolean(randomAccessFile.readLine());
+orderDTO=new OrderDTO();
+orderDTO.setOrderId(fOrderId);
+orderDTO.setProductId(fProductId);
+orderDTO.setDeliveryStatus(fDeliveryStatus);
+orders.add(orderDTO);
+}
+randomAccessFile.close();
+return orders;
+}catch(IOException ioException)
+{
+throw new DAOException(ioException.getMessage());
+}
+}
+
 
 public Set<OrderDTOInterface> getAllDelivered() throws DAOException
 {
-throw new DAOException("Not yet implemented");
+Set<OrderDTOInterface> deliveredOrders=new HashSet<>();
+try{
+File file=new File(FILE_NAME);
+RandomAccessFile randomAccessFile;
+randomAccessFile=new RandomAccessFile(file,"rw");
+OrderDTOInterface orderDTO;
+if(randomAccessFile.length()==0)
+{
+randomAccessFile.close();
+throw new DAOException("No entries yet.");
+}
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+int fOrderId;
+int fProductId;
+boolean fDeliveryStatus;
+while(randomAccessFile.getFilePointer()<randomAccessFile.length())
+{
+fOrderId=Integer.parseInt(randomAccessFile.readLine());
+fProductId=Integer.parseInt(randomAccessFile.readLine());
+fDeliveryStatus=Boolean.parseBoolean(randomAccessFile.readLine());
+if(fDeliveryStatus==true)
+{
+orderDTO=new OrderDTO();
+orderDTO.setOrderId(fOrderId);
+orderDTO.setProductId(fProductId);
+orderDTO.setDeliveryStatus(fDeliveryStatus);
+deliveredOrders.add(orderDTO);
+}
+}
+randomAccessFile.close();
+return deliveredOrders;
+}catch(IOException ioException)
+{
+throw new DAOException(ioException.getMessage());
+}
 }
 
 public OrderDTOInterface getByOrderId(int orderId) throws DAOException

@@ -10,5 +10,6 @@ public void setCustomerId(String customerId);
 public String getCustomerId();
 public void setContactNumber(String contactNumber);
 public String getContactNumber();
-public Set<>
+public void addOrder(int orderId);
+public List<Integer> getOrders();
 }
