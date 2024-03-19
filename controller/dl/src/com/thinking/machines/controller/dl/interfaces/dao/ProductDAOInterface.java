@@ -17,4 +17,5 @@ public Set<ProductDTOInterface> getByCategory(int categoryCode) throws DAOExcept
 public boolean productIdExists(int productId);
 public boolean nameExists(String name);
 public void decreaseNumberOfUnits(int productId) throws DAOException;
+public void increaseNumberOfUnits(int productId) throws DAOException;
 }

@@ -159,15 +159,10 @@ throw new DAOException(ioException.getMessage());
 }
 }
 
-public void delete(CategoryDTOInterface categoryDTO) throws DAOException
+public void delete(int code) throws DAOException
 {
-if(categoryDTO==null)throw new DAOException("Category cannot be null");
-String title=categoryDTO.getTitle();
-if(title==null)throw new DAOException("Title cannot be null");
-title=title.trim();
-if(title.length()==0)throw new DAOException("Title cannot be null");
-int code=categoryDTO.getCode();
 if(code<=0)throw new DAOException("Invalid code");
+if(new ProductDAO().getCountByCategory(code)!=0)throw new DAOException("Products exists against this category");
 try{
 File file=new File(FILE_NAME);
 RandomAccessFile randomAccessFile;

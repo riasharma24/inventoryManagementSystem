@@ -121,7 +121,7 @@ while(randomAccessFile.getFilePointer()<randomAccessFile.length())
 fCustomerId=randomAccessFile.readLine().trim();
 fName=randomAccessFile.readLine();
 fContactNumber=randomAccessFile.readLine();
-if(fCustomerId.equalsIgnoreCase(customerId) && fName.equalsIgnoreCase(name) && fContactNumber.equalsIgnoreCase(contactNumber))
+if(fCustomerId.equalsIgnoreCase(customerId))
 {
 found=true;
 break;

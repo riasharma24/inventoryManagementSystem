@@ -67,6 +67,8 @@ randomAccessFile.writeBytes("\n");
 randomAccessFile.close();
 orderDTO.setDeliveryStatus(false);
 orderDTO.setOrderId(orderId);
+ProductDAOInterface productDAO=new ProductDAO();
+productDAO.decreaseNumberOfUnits(productId);
 }catch(IOException ioException)
 {
 throw new DAOException(ioException.getMessage());
@@ -118,6 +120,7 @@ File tmpFile=new File("tmp.tmp");
 RandomAccessFile tmpRandomAccessFile;
 tmpRandomAccessFile=new RandomAccessFile(tmpFile,"rw");
 int fProductId;
+int prevProductId=0;
 boolean fDeliveryStatus;
 tmpRandomAccessFile.writeBytes(randomAccessFile.readLine());
 tmpRandomAccessFile.writeBytes("\n");
@@ -130,6 +133,7 @@ fProductId=Integer.parseInt(randomAccessFile.readLine());
 fDeliveryStatus=Boolean.parseBoolean(randomAccessFile.readLine());
 if(fOrderId==orderId)
 {
+prevProductId=fProductId;
 tmpRandomAccessFile.writeBytes(String.valueOf(orderId));
 tmpRandomAccessFile.writeBytes("\n");
 tmpRandomAccessFile.writeBytes(String.valueOf(productId));
@@ -160,6 +164,9 @@ randomAccessFile.setLength(tmpRandomAccessFile.length());
 tmpRandomAccessFile.setLength(0);
 randomAccessFile.close();
 tmpRandomAccessFile.close();
+ProductDAOInterface productDAO=new ProductDAO();
+productDAO.decreaseNumberOfUnits(productId);
+productDAO.increaseNumberOfUnits(prevProductId);
 }catch(IOException ioException)
 {
 throw new DAOException(ioException.getMessage());

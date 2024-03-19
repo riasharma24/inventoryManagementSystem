@@ -9,7 +9,7 @@ public interface CategoryDAOInterface
 {
 public void add(CategoryDTOInterface categoryDTO) throws DAOException;
 public void update(CategoryDTOInterface categoryDTO) throws DAOException;
-public void delete(CategoryDTOInterface categoryDTO) throws DAOException;
+public void delete(int code) throws DAOException;
 public CategoryDTOInterface getByCode(int code) throws DAOException;
 public CategoryDTOInterface getByTitle(String title) throws DAOException;
 public int getCount();

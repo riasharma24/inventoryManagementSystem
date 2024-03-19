@@ -677,4 +677,83 @@ throw new DAOException(ioException.getMessage());
 }
 }
 
+public void increaseNumberOfUnits(int productId) throws DAOException
+{
+if(productId<=0)throw new DAOException("Invalid product id");
+try{
+File file=new File(FILE_NAME);
+RandomAccessFile randomAccessFile;
+randomAccessFile=new RandomAccessFile(file,"rw");
+if(randomAccessFile.length()==0)
+{
+randomAccessFile.close();
+throw new DAOException("No entries yet");
+}
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+int fProductId;
+boolean productIdFound=false;
+while(randomAccessFile.getFilePointer()<randomAccessFile.length())
+{
+fProductId=Integer.parseInt(randomAccessFile.readLine());
+if(fProductId==productId)
+{
+productIdFound=true;
+break;
+}
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+randomAccessFile.readLine();
+}
+if(productIdFound==false)
+{
+randomAccessFile.close();
+throw new DAOException("Invalid product id");
+}
+randomAccessFile.seek(0);
+File tmpFile=new File("tmp.tmp");
+RandomAccessFile tmpRandomAccessFile;
+tmpRandomAccessFile=new RandomAccessFile(tmpFile,"rw");
+tmpRandomAccessFile.writeBytes(randomAccessFile.readLine()+"\n");
+tmpRandomAccessFile.writeBytes(randomAccessFile.readLine()+"\n");
+String fName;
+int fCategoryCode;
+int fPrice;
+int fNumberOfUnits;
+boolean isEmpty=false;
+while(randomAccessFile.getFilePointer()<randomAccessFile.length())
+{
+fProductId=Integer.parseInt(randomAccessFile.readLine());
+fName=randomAccessFile.readLine();
+fCategoryCode=Integer.parseInt(randomAccessFile.readLine());
+fPrice=Integer.parseInt(randomAccessFile.readLine());
+fNumberOfUnits=Integer.parseInt(randomAccessFile.readLine());
+if(fProductId==productId)
+{
+fNumberOfUnits++;
+}
+tmpRandomAccessFile.writeBytes(String.valueOf(fProductId)+"\n");
+tmpRandomAccessFile.writeBytes(fName+"\n");
+tmpRandomAccessFile.writeBytes(String.valueOf(fCategoryCode)+"\n");
+tmpRandomAccessFile.writeBytes(String.valueOf(fPrice)+"\n");
+tmpRandomAccessFile.writeBytes(String.valueOf(fNumberOfUnits)+"\n");
+}
+randomAccessFile.seek(0);
+tmpRandomAccessFile.seek(0);
+while(tmpRandomAccessFile.getFilePointer()<tmpRandomAccessFile.length())
+{
+randomAccessFile.writeBytes(tmpRandomAccessFile.readLine()+"\n");
+}
+randomAccessFile.setLength(tmpRandomAccessFile.length());
+tmpRandomAccessFile.setLength(0);
+randomAccessFile.close();
+tmpRandomAccessFile.close();
+}catch(IOException ioException)
+{
+throw new DAOException(ioException.getMessage());
+}
+}
+
+
 }

@@ -1,0 +1,4 @@
+apply plugin: 'java'
+dependencies{
+implementation files('../dl/dist/controller-dl-1.0.jar')
+}
