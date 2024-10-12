@@ -552,6 +552,8 @@ if(fCustomerId.equalsIgnoreCase(customerId))
 tmpRandomAccessFile.writeBytes(customerId+"\n");
 tmpRandomAccessFile.writeBytes(name+"\n");
 tmpRandomAccessFile.writeBytes(contactNumber+"\n");
+/* new */
+for(int orderId : fOrders)tmpRandomAccessFile.writeBytes(String.valueOf(orderId)+"\n");
 for(int orderId : orders)
 {
 tmpRandomAccessFile.writeBytes(String.valueOf(orderId)+"\n");
